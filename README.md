@@ -1,5 +1,10 @@
 # EpiOut
 
+A statistical method to detect, analyze and visualize aberrations in chromatin accessibility (ATAC-seq, DNase-Seq) and quantify its effect on gene expression.
+
+[doi: https://doi.org/10.1101/2023.08.25.554881](https://doi.org/10.1101/2023.08.25.554881)
+
+
 [![pypi](https://img.shields.io/pypi/v/epiout.svg)](https://pypi.python.org/pypi/epiout)
 [![tests](https://github.com/uci-cbcl/EpiOut/actions/workflows/python-app.yml/badge.svg)](https://github.com/uci-cbcl/EpiOut/actions)
 [![codecov](https://codecov.io/gh/uci-cbcl/EpiOut/branch/master/graph/badge.svg?token=MJQ88T8JWK)](https://codecov.io/gh/uci-cbcl/EpiOut/)
