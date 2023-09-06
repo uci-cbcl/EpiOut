@@ -1,0 +1,24 @@
+"""
+Example of a workflow file to call outliers from ATAC-seq data.
+The analysis only includes few samples so just serves as an example.
+"""
+
+
+configfile: "workflow/config.yaml"
+
+
+# download data
+include: "download/Snakefile"
+# preprocess downloaded data before outlier calling
+include: "common/Snakefile"
+# benchmarking performance of counting
+include: "counting/Snakefile"
+# Counts reads for peaks with EpiCount
+# outlier calling with EpiOut
+# Annotation of outlier with EpiAnnot for chromatin features
+include: "outliers/Snakefile"
+
+
+rule all:
+    input:
+        rules.all_outliers.input,

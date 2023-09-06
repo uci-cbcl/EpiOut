@@ -1,0 +1,22 @@
+rule annotate:
+    input:
+        bed=config["atac_peaks"],
+        config=config["annot_config"],
+        gtf=config["gtf"],
+        counts=config["count_table"],
+        chrom_sizes=config["chrom_sizes"],
+    params:
+        output_prefix=config["annot"]["dir"],
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        config["annot"]["dir"] + ".annotation.csv",
+        config["annot"]["dir"] + ".gtf.csv",
+    shell:
+        "epiannot --bed {input.bed}  \
+        --config {input.config} \
+        --gtf {input.gtf} \
+        --counts {input.counts} \
+        --chrom_sizes {input.chrom_sizes} \
+        --output_prefix {params.output_prefix}"

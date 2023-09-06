@@ -1,0 +1,18 @@
+H3K27ac:
+  - ENCFF579MGE_chr17.bed
+  - ENCFF031UQO_chr17.bed
+
+H3K4me1:
+  - ENCFF605EAL_chr17.bed
+  - ENCFF493FAP_chr17.bed
+
+H3K4me3:
+  - ENCFF811BQV_chr17.bed
+  - ENCFF246QVL_chr17.bed
+
+ccres_pls:
+  - ccres_pls_chr17.bed
+
+hic:
+  - test_chr22.hic
+  - test_chr22.hic

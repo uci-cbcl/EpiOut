@@ -1,0 +1,30 @@
+"""
+Preprocessing steps need to call outliers from ATAC-seq data.
+"""
+
+
+# bam files need to be index before the outlier calling.
+rule bam_index:
+    input:
+        bam=config["encode"]["bam"],
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        bai=config["encode"]["bam"] + ".bai",
+    shell:
+        "samtools index {input.bam}"
+
+
+# Chrom sizes is need to call outliers and you can generate it from your fasta
+# with `pyfaidx` package `faidx hg38.fasta -i chromsizes > hg38.chrom_sizes`
+rule chrom_sizes:
+    input:
+        fasta=config["fasta"],
+    threads: 1
+    resources:
+        mem_gb=16,
+    output:
+        chrom_sizes=config["chrom_sizes"],
+    shell:
+        "faidx {input.fasta} -i chromsizes > {output.chrom_sizes}"

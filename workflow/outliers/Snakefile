@@ -1,0 +1,131 @@
+"""
+Pipeline call outliers from ATAC-seq data.
+"""
+
+
+# merge multiple bed files into one bed file. EpiCount requires one bed file.
+# if there are overlapping peaks, epicount will collapse them into one peak.
+# if you want more narrow peaks without collapsing them, you can fist merge
+# your bam files from different samples into one bam file:
+# `samtools merge -@ {threads} {single_bam} {bam1} {bam2} {bam3} ...`
+# and then call peaks from the merged bam file:
+# `macs2 callpeak --keep-dup all -t {single_bam} -f BAM --outdir {output_dir}`
+# this approach will results more narrow peaks which are consistant across
+# all samples. However, it is much more computationally expensive then
+# simple `cat`
+rule merge_bed:
+    input:
+        beds=expand(config["encode"]["bed"], encode_id=config["encode"]["bed_id"]),
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        bed=config["merged_bed"],
+    shell:
+        "cat {input.beds} > {output.bed}"
+
+
+# Create a file listing bam files
+rule alignment_files:
+    input:
+        bams=expand(
+            config["encode"]["bam"],
+            encode_id=config["encode"]["bam_id"],
+        ),
+    output:
+        alignments=config["alignments"],
+    run:
+        import pandas as pd
+
+        pd.DataFrame({0: input["bams"]}).to_csv(
+            output["alignments"], index=False, header=None
+        )
+
+
+# Counting step of EpiCount will produce consistent set of peaks across samples
+# and counts for these peaks.
+rule epicount:
+    input:
+        bed=config["merged_bed"],
+        alignments=config["alignments"],
+    threads: 16
+    resources:
+        mem_gb=32,
+    params:
+        output_prefix=config["epicount"]["counts"].split(".")[0],
+    output:
+        config["epicount"]["counts_raw"],
+        config["epicount"]["counts"],
+        config["epicount"]["peaks"],
+    shell:
+        "epicount --bed {input.bed} \
+        --alignments {input.alignments} \
+        --output_prefix {params.output_prefix} \
+        --cores {threads} \
+        --subset_chrom"
+
+
+# Call outliers using the counts above. It will set bottleneck size to 2
+# alternatively you can set botteneck size by just not passing size argument.
+rule epiout:
+    input:
+        count_table=config["epicount"]["counts"],
+    threads: 8
+    resources:
+        mem_gb=32,
+    params:
+        output_prefix=config["epiout"]["h5ad"].split(".")[0],
+        botteneck_size=2,
+    output:
+        outliers=config["epiout"]["h5ad"],
+        result=config["epiout"]["result"],
+        auc=config["epiout"]["auc"],
+    shell:
+        "epiout \
+        --count_table {input.count_table} \
+        --botteneck_size {params.botteneck_size} \
+        --output_prefix {params.output_prefix} \
+        --cores {threads}"
+
+
+# Create config file from encode bed files.
+rule epiout_create:
+    params:
+        tissue="motor neuron",
+        config_dir=Path(config["annot"]["config"]).parent,
+    output:
+        annot_config=config["annot"]["config"],
+    shell:
+        "epiannot_create \
+        --tissue {params.tissue} \
+        --output_dir {params.config_dir}"
+
+
+# Annotate peaks using epiannot
+rule epiannot:
+    input:
+        config=config["annot"]["config"],
+        bed=config["epicount"]["peaks"],
+        counts=config["epiout"]["h5ad"],
+        gtf=config["gtf"],
+        chrom_sizes=config["chrom_sizes"],
+    params:
+        output_prefix=config["annot"]["annotation"].split(".")[0],
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        config["annot"]["annotation"],
+    shell:
+        "epiannot --bed {input.bed}  \
+        --config {input.config} \
+        --gtf {input.gtf} \
+        --counts {input.counts} \
+        --chrom_sizes {input.chrom_sizes} \
+        --output_prefix {params.output_prefix}"
+
+
+rule all_outliers:
+    input:
+        rules.epiout.output,
+        rules.epiannot.output,

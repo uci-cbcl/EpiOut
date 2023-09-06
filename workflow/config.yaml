@@ -1,0 +1,64 @@
+fasta: data/resources/GRCh38.primary_assembly.genome.fa
+gtf: data/resources/gencode.v43.gtf
+chrom_sizes: data/resources/GRCh38.chrom_sizes
+
+merged_bed: data/results/merged.bed
+alignments: data/results/count/motor_neuron.csv
+epicount:
+  peaks: data/results/epiout/motor_neuron.bed
+  counts_raw: data/results/epiout/motor_neuron.raw_counts.parquet
+  counts: data/results/epiout/motor_neuron.counts.parquet
+
+epiout:
+  h5ad: data/results/epiout/epiout.h5ad
+  result: data/results/epiout/epiout.result.csv
+  auc: data/results/epiout/epiout.bottleneck_auc.csv
+
+annot:
+  config: data/results/annot/config.yaml
+  annotation: data/results/epiannot/motor_neuron.annotation.csv
+
+encode:
+  bam: data/resources/encode/bam/{encode_id}.bam
+  bed: data/resources/encode/bed/{encode_id}.bed
+
+  bam_id:
+    - ENCFF379GTS
+    - ENCFF333UUT
+    - ENCFF079ETH
+    - ENCFF786BZU
+    - ENCFF199OKA
+    - ENCFF896PIT
+    - ENCFF884SWM
+    - ENCFF367KMY
+    - ENCFF243CTN
+    - ENCFF742KHO
+    - ENCFF870LIP
+    - ENCFF874HWI
+    - ENCFF628IGU
+    - ENCFF789NRH
+    - ENCFF353HIF
+    - ENCFF577CYP
+    - ENCFF275GRM
+    - ENCFF347EQI
+    - ENCFF344XTT
+    - ENCFF733AZN
+
+  bed_id:
+    - ENCFF594FVI
+    - ENCFF974XTQ
+    - ENCFF305GXR
+    - ENCFF415HUA
+    - ENCFF604VEC
+    - ENCFF052TGW
+    - ENCFF610SOB
+    - ENCFF487GKW
+    - ENCFF400AZJ
+    - ENCFF010FOR
+
+counting:
+  method: data/results/counting/{encode_id}.{method}.csv
+  time: data/results/counting/{encode_id}.{method}.txt
+
+  read_count: data/results/counting/read_count/{encode_id}.txt
+  bed: data/results/counting/merged_atacseq_peaks.bed

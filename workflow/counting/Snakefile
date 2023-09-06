@@ -1,0 +1,91 @@
+"""
+Benchmarking of counting methods for ATAC-seq data. Not necessary for the
+outlier calling.
+"""
+
+
+# You can merge your bed files into one bed file using following code.
+# Or just `cat *.bed > merged.bed` in your terminal and EpiCount
+# will handle the rest. It will collapse the overlapping peaks
+rule counting_merge_bed:
+    input:
+        beds=expand(config["encode"]["bed"], encode_id=config["encode"]["bed_id"]),
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        bed=config["counting"]["bed"],
+    script:
+        "./merge_bed.py"
+
+
+# Count number of reads in the bam file.
+rule counting_reads:
+    input:
+        bam=config["encode"]["bam"],
+    threads: 1
+    resources:
+        mem_gb=16,
+    output:
+        txt=config["counting"]["read_count"],
+    shell:
+        "samtools view -q 10 -c {input.bam} > {output.txt}"
+
+
+rule count_epicount:
+    input:
+        bed=config["counting"]["bed"],
+        bam=config["encode"]["bam"],
+        bai=config["encode"]["bam"] + ".bai",
+    benchmark:
+        config["counting"]["time"].replace("{method}", "epicount")
+    threads: 1
+    resources:
+        mem_gb=16,
+    output:
+        counts=config["counting"]["method"].replace("{method}", "epicount"),
+    script:
+        "./epicount.py"
+
+
+rule count_pyranges:
+    input:
+        bed=config["counting"]["bed"],
+        bam=config["encode"]["bam"],
+        bai=config["encode"]["bam"] + ".bai",
+    benchmark:
+        config["counting"]["time"].replace("{method}", "pyranges")
+    threads: 1
+    resources:
+        mem_gb=16,
+    output:
+        counts=config["counting"]["method"].replace("{method}", "pyranges"),
+    script:
+        "./pyrange_count.py"
+
+
+rule counting_benchmark:
+    input:
+        bed=config["counting"]["bed"],
+        read_count=expand(
+            config["counting"]["read_count"],
+            encode_id=config["encode"]["bam_id"],
+        ),
+        epicount=expand(
+            config["counting"]["time"],
+            method="epicount",
+            encode_id=config["encode"]["bam_id"],
+        ),
+        pyranges=expand(
+            config["counting"]["time"],
+            method="pyranges",
+            encode_id=config["encode"]["bam_id"],
+        ),
+    threads: 1
+    resources:
+        mem_gb=4,
+    output:
+        fig_cpu="reports/figures/counting_benchmark_cpu.svg",
+        fig_mem="reports/figures/counting_benchmark_mem.svg",
+    notebook:
+        "./count_benchmark.py.ipynb"
