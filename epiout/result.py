@@ -166,8 +166,7 @@ class EpiOutResult:
         Args:
           peak (str): Peak name across samples.
         '''
-        qq_plot(self.pval[peak], highlight=self.padj[peak] < self.pval_threshold,
-                ci=ci, eps=eps)
+        qq_plot(self.pval[peak], highlight=self.outliers, ci=ci, eps=eps)
 
     def plot_counts(self, peak):
         '''
@@ -177,7 +176,7 @@ class EpiOutResult:
           peak (str): Peak name.
         '''
         plot_counts(self.counts[peak], self.counts_mean[peak],
-                    self.padj[peak] < self.pval_threshold)
+                    self.outlier[peak])
 
     def plot_rank(self, peak, stats='l2fc'):
         '''
@@ -193,8 +192,7 @@ class EpiOutResult:
         else:
             raise ValueError("Only `l2fc` and `zscore` supported stats")
 
-        plot_rank(val, stats_name=stats,
-                  highlight=self.padj[peak] < self.pval_threshold)
+        plot_rank(val, stats_name=stats, highlight=self.outlier)
 
     def plot_volcona(self, peak, zscore_cutoff=(-1, 1)):
         '''

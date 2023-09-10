@@ -20,6 +20,8 @@ Install `epiout` and its companion packages with:
 pip install epiout
 ```
 
+### Optional dependencies
+
 `hic-straw` is optional dependency to annotate chromatin interactions with `EpiAnnot`:
 ```
 conda install -c bioconda hic-straw
