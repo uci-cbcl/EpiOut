@@ -364,7 +364,7 @@ class GTFAnnot:
             .df.assign(Feature="upstream")
         )
 
-        features = {"UTR", "exon", "five_prime_UTR", "three_prime_UTR"}
+        features = {"UTR", "exon", "five_prime_utr", "three_prime_utr"}
         df = (
             gr[gr.Feature.isin(features)]
             .merge(by=["Feature", "gene_id", "gene_type"])

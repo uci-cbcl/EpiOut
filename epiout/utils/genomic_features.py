@@ -14,8 +14,8 @@ def tss_genes(gr: pr.PyRanges):
     df_neg['Start'] = df_neg['End'] - 1
 
     df = pd.concat([df_pos, df_neg])
+    df['Strand'] = df['Strand'].astype(str)
     df['Feature'] = 'tss'
-
     return pr.PyRanges(df)
 
 
@@ -31,6 +31,6 @@ def tes_genes(gr: pr.PyRanges):
     df_neg['End'] = df_neg['Start'] + 1
 
     df = pd.concat([df_pos, df_neg])
+    df['Strand'] = df['Strand'].astype(str)
     df['Feature'] = 'tes'
-
     return pr.PyRanges(df)

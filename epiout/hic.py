@@ -18,7 +18,7 @@ def import_hicstraw():
             '\t`conda install -c bioconda hic-straw` \n'
             'or download with pip:\n'
             '\t`conda install -c conda-forge curl` \n'
-            '\t`pip install hicstraw`'
+            '\t`pip install hic-straw`'
         ) from exc
     return hicstraw
 
