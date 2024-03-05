@@ -95,9 +95,9 @@ def cli_epicount(
     type=int,
 )
 @click.option(
-    "--cores", help="Number of cores to use for paralell counting.", default=1, type=int
+    "--cores", help="Number of cores to use for paralell counting.", default=0, type=int
 )
-def cli_epiout(count_table, output_prefix, confounders=None, bottleneck_size=None, cores=1):
+def cli_epiout(count_table, output_prefix, confounders=None, bottleneck_size=None, cores=0):
 
     if count_table.endswith(".parquet"):
         df_counts = pd.read_parquet(count_table).T
@@ -110,8 +110,9 @@ def cli_epiout(count_table, output_prefix, confounders=None, bottleneck_size=Non
         confounders = pd.read_csv(
             confounders, sep="\t", index_col=0, header=None)
 
-    import tensorflow as tf
-    tf.config.threading.set_inter_op_parallelism_threads(cores)
+    if cores:
+        import tensorflow as tf
+        tf.config.threading.set_inter_op_parallelism_threads(cores)
 
     from epiout.epiout import EpiOut
     epiout = EpiOut(bottleneck_size=bottleneck_size)
