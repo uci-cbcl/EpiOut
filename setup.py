@@ -28,7 +28,7 @@ requirements = [
     'tensorflow-probability'
 ]
 extras_require = {
-    'onnx': ['onnxruntime>=1.14.1'],
+    'onnx': ['onnxruntime>=1.15'],
     'hic': ['hic-straw'],
     'all': ['onnxruntime', 'hic-straw']
 }
