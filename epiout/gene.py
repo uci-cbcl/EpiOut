@@ -21,8 +21,8 @@ def import_onnxruntime():
 
 class GeneLink:
     '''
-    Predict aberrant genes based on the features from promoters, proximal 
-      and distal enhancers.
+    Predict aberrant genes based on the features from tss, proximal 
+      and distal region.
     '''
 
     def __init__(self, annotation_gtf, interaction, annotation=None):
@@ -35,7 +35,7 @@ class GeneLink:
 
         if annotation:
             self.df_annotation = pd.read_csv(annotation)
-            self.df_peak_annot_gene = self._peak_gene()
+            self.df_peak_annot_gene = self._peak_annot_gene()
 
     def _peak_gene(self):
         df = (
@@ -74,7 +74,7 @@ class GeneLink:
 
     def tss_gene(self, df_result):
         '''
-        Calculate promoter outlier scores for each gene.
+        Calculate tss outlier scores for each gene.
         '''
         return df_result.set_index("peak").join(self._tss_gene(), how="inner")
 
@@ -95,7 +95,7 @@ class GeneLink:
 
     def promoter_features(self, result, eps=1e-16):
         '''
-        Calculate promoter outlier scores for each gene.
+        Calculate tss outlier scores for each gene.
         '''
         df = pd.concat(
             [
@@ -120,7 +120,7 @@ class GeneLink:
 
     def tss_features(self, result, eps=1e-16):
         '''
-        Calculate promoter outlier scores for each gene.
+        Calculate tss outlier scores for each gene.
         '''
         df = pd.concat(
             [
@@ -150,7 +150,7 @@ class GeneLink:
 
     def proximal_gene(self, df_result):
         '''
-        Calculate proximal enhancer scores for each gene.
+        Calculate proximal region scores for each gene.
         '''
         return df_result.set_index("peak").join(self._proximal_gene(), how="inner")
 
@@ -175,7 +175,7 @@ class GeneLink:
 
     def distal_gene(self, df_result):
         '''
-        Calculate distal enhancer scores for each gene.
+        Calculate distal region scores for each gene.
         '''
         df_tss = self._tss_gene().set_index("gene_id", append=True)
         df_proximal = self._proximal_gene().set_index("gene_id", append=True)
@@ -191,7 +191,7 @@ class GeneLink:
 
     def distal_features(self, df_result):
         '''
-        Calculate distal enhancer scores for each gene.
+        Calculate distal region scores for each gene.
         '''
         df_distal = self.distal_gene(df_result)
         df_distal["distal"] = df_distal["abc_score"] * \
@@ -200,8 +200,8 @@ class GeneLink:
 
     def features(self, result):
         '''
-        Prepare features for prediction from promoters, proximal and 
-          distal enhancers.
+        Prepare features for prediction from tss, proximal and 
+          distal region.
         '''
         df_result = result.results()
         return (
@@ -213,8 +213,8 @@ class GeneLink:
 
     def predict(self, result):
         '''
-        Predict aberrant genes based on the features from promoters, 
-          proximal and distal enhancers.
+        Predict aberrant genes based on the features from tss, 
+          proximal and distal regions.
         '''
         features = self.features(result)
 

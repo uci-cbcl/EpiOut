@@ -32,3 +32,8 @@ def test_gene(tmp_path, epi_annot):
         'tss_outlier', 'l2fc', '-log(pval)', 'proximal', 'distal', 'Score'
     ]
     assert list(features.index.names) == ['gene_id', 'sample']
+
+    df_promoter = gene_link.promoter_features(result)
+    assert list(df_promoter.columns) == [
+        'promoter_outlier', 'l2fc', '-log(pval)'
+    ]
