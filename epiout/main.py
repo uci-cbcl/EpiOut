@@ -197,18 +197,15 @@ def cli_epiannot(
     )
     annot.save_annotate(bed, output_prefix)
 
-    annotation = Path(f'{output_prefix}.annotation.csv')
     gtf_annot = Path(f'{output_prefix}.gtf.csv')
     contact = Path(f'{output_prefix}.interaction.csv')
-
-    annotation = annotation.exists() or None
 
     if gtf_annot.exists() and contact.exists():
         if counts.endswith('.h5ad'):
             from epiout.gene import GeneLink
             from epiout.result import EpiOutResult
             result = EpiOutResult.load(counts)
-            gene_link = GeneLink(gtf_annot, contact, annotation)
+            gene_link = GeneLink(gtf_annot, contact)
             df_link = gene_link.predict(result)
             df_link.to_csv(f"{output_prefix}.genes.csv")
 
