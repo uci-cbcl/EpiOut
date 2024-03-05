@@ -28,9 +28,9 @@ requirements = [
     'tensorflow-probability'
 ]
 extras_require = {
-    'onnx': ['onnxruntime>=1.15'],
+    'onnx': ['onnxruntime>=1.16'],
     'hic': ['hic-straw'],
-    'all': ['onnxruntime', 'hic-straw']
+    'all': ['onnxruntime>=1.16', 'hic-straw']
 }
 
 setup_requirements = ['pytest-runner', ]
