@@ -62,8 +62,8 @@ class GeneLink:
         ]
 
     def _tss_gene(self):
-        return self.df_peak_annot_gene[
-            self.df_peak_annot_gene["Feature"].isin({"tss", "five_prime_utr"})
+        return self.df_peak_gene[
+            self.df_peak_gene["Feature"].isin({"tss", "five_prime_utr"})
         ]
 
     def promoter_gene(self, df_result):
