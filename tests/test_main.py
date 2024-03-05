@@ -31,7 +31,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'parquet'
@@ -51,7 +51,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'csv'
@@ -72,7 +72,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'csv'
