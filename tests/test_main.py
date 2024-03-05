@@ -95,12 +95,9 @@ def test_cli_epiout(tmp_path, counts):
         '--confounders', str(confounders_path),
         '--output_prefix', prefix,
     ])
-    print('exception')
-    print(result.exception)
-    print('stderr')
-    print(result.stderr)
-    print('stdout')
     print(result.stdout)
+    print(result.exception)
+    print(result.__dict__)
     assert result.exit_code == 0
 
     adata = anndata.read_h5ad(prefix + '.h5ad')
