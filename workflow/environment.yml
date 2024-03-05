@@ -1,0 +1,15 @@
+name: epiout-workflow
+channels:
+  - bioconda
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pip=21.2
+  - python=3.8
+  - bedtools
+
+  - pip:
+      - cython
+      - pyfaidx
+      - bamread
