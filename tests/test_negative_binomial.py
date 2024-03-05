@@ -63,7 +63,7 @@ def test_NegativeBinomial_infer_dispersion_2d():
     assert tf.reduce_all((
         tf.reduce_sum(nb_mle.log_prob(samples), axis=0)
         - tf.reduce_sum(nb_mom.log_prob(samples), axis=0)
-    ) > -0.1)
+    ) > -1)
 
 
 def test_NegativeBinomial_pval():

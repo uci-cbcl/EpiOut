@@ -214,13 +214,6 @@ class EpiAnnot:
         for chrom, df_chrom in df.groupby("Chromosome"):
             df_nn = self._neighbors(pr.PyRanges(df_chrom))
 
-            try:
-                print(f"\t Annotating contacts {chrom}:")
-                hic_scores = self.hic.contact_scores(chrom)
-            except ValueError:
-                warnings.warn(f"{chrom} not found in hic file. Skipping...")
-                continue
-
             df_nn["peak_other"] = (
                 df_nn["Chromosome"].astype(str)
                 + ":"
@@ -241,36 +234,50 @@ class EpiAnnot:
 
             center = (df_nn.Start + df_nn.End) // 2
             center_other = (df_nn.Start_b + df_nn.End_b) // 2
-
-            bins = center // self.hic_binsize
-            bins_other = center_other // self.hic_binsize
-            bins_index = hic_scores.shape[1] // 2 + (bins_other - bins)
-
-            in_vicinity = bins_index < hic_scores.shape[1]
-
-            bins = bins[in_vicinity]
-            bins_index = bins_index[in_vicinity]
-            df_nn = df_nn.loc[in_vicinity]
-
-            df_nn["hic_score"] = np.array(
-                [
-                    hic_scores[
-                        np.minimum(np.maximum(0, bins + i),
-                                   hic_scores.shape[0] - 1),
-                        np.minimum(
-                            np.maximum(0, bins_index +
-                                       j), hic_scores.shape[1] - 1
-                        ),
-                    ]
-                    for i in range(-1, 2)
-                    for j in range(-1, 2)
-                ]
-            ).max(axis=0)
-
             df_nn["distance"] = abs(center_other - center)
 
-            df_nn["count"] = df_nn["peak_other"].map(self.counts).fillna(0)
+            if self.hic is not None:
+                try:
+                    print(f"\t Annotating contacts {chrom}:")
+                    hic_scores = self.hic.contact_scores(chrom)
+                except ValueError:
+                    warnings.warn(
+                        f"{chrom} not found in hic file. Skipping...")
+                    continue
 
+                bins = center // self.hic_binsize
+                bins_other = center_other // self.hic_binsize
+                bins_index = hic_scores.shape[1] // 2 + (bins_other - bins)
+
+                in_vicinity = bins_index < hic_scores.shape[1]
+
+                bins = bins[in_vicinity]
+                bins_index = bins_index[in_vicinity]
+                df_nn = df_nn.loc[in_vicinity]
+
+                df_nn["hic_score"] = np.array(
+                    [
+                        hic_scores[
+                            np.minimum(np.maximum(0, bins + i),
+                                       hic_scores.shape[0] - 1),
+                            np.minimum(
+                                np.maximum(0, bins_index +
+                                           j), hic_scores.shape[1] - 1
+                            ),
+                        ]
+                        for i in range(-1, 2)
+                        for j in range(-1, 2)
+                    ]
+                ).max(axis=0)
+            else:
+                df_nn['hic_score'] = (
+                    np.exp(
+                        13.8552
+                        - np.log(np.maximum(df_nn['distance'], 10_000))
+                        + df_nn['co_outlier'] * 0.0981)
+                ).tolist()
+
+            df_nn["count"] = df_nn["peak_other"].map(self.counts).fillna(0)
             df_nn = df_nn.set_index("peak")[
                 [
                     "peak_other",
@@ -308,9 +315,8 @@ class EpiAnnot:
             df_gtf.to_csv(output_prefix + ".gtf.csv")
 
         print("Annotating hic contacts...")
-        if self.hic is not None:
-            df_batch_writer(self.annotate_hic(
-                gr), output_prefix + ".interaction.csv")
+        df_batch_writer(self.annotate_hic(
+            gr), output_prefix + ".interaction.csv")
 
 
 class GTFAnnot:
