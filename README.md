@@ -29,12 +29,12 @@ conda install -c bioconda hic-straw
 or 
 ```
 conda install -c conda-forge curl
-pip install hic-straw
+pip install epiout[hic]
 ```
 
 and another optional dependency is `onnxruntime` to predict aberrant gene expression from aberrant chromatin accessibility:
 ``` 
-pip install onnxruntime
+pip install epiout[onnx]
 ```
 
 ## Usage
