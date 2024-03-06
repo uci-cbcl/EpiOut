@@ -8,6 +8,7 @@ bam3 = 'tests/data/test3.bam'
 
 bed = 'tests/data/test_peaks.bed'
 config = 'tests/data/annotation.config.yaml'
+config_chipseq = 'tests/data/annotation_chipseq.config.yaml'
 
 ccres_pls = 'tests/data/ccres_pls_chr17.bed'
 
@@ -49,4 +50,21 @@ def epi_annot():
         }
     ).set_index("peak")
     return EpiAnnot(config, gtf=gtf, chrom_sizes=chrom_sizes,
+                    counts=df_counts, hic_min_read=1)
+
+
+@pytest.fixture
+def epi_annot_chipseq():
+    df_counts = pd.DataFrame(
+        {
+            "peak": [
+                "chr22:40000000-40001000",
+                "chr22:40010000-40012000",
+                "chr22:40110000-40115000",
+            ],
+            "s1": [1, 1, 2],
+            "s2": [50, 100, 200],
+        }
+    ).set_index("peak")
+    return EpiAnnot(config_chipseq, gtf=gtf, chrom_sizes=chrom_sizes,
                     counts=df_counts, hic_min_read=1)

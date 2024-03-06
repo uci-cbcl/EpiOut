@@ -64,6 +64,23 @@ rule count_pyranges:
         "./pyrange_count.py"
 
 
+rule count_bedtools:
+    input:
+        bed=config["counting"]["bed"],
+        bam=config["encode"]["bam"],
+        bai=config["encode"]["bam"] + ".bai",
+        chrom_sizes=config["chrom_sizes"],
+    benchmark:
+        config["counting"]["time"].replace("{method}", "bedtools")
+    threads: 1
+    resources:
+        mem_gb=16,
+    output:
+        counts=config["counting"]["method"].replace("{method}", "bedtools"),
+    shell:
+        "bedtools sort -i {input.bed} -faidx {input.chrom_sizes} | bedtools coverage -a stdin -b {input.bam} -sorted -g {input.chrom_sizes} > {output.counts}"
+
+
 rule counting_benchmark:
     input:
         bed=config["counting"]["bed"],
@@ -79,6 +96,11 @@ rule counting_benchmark:
         pyranges=expand(
             config["counting"]["time"],
             method="pyranges",
+            encode_id=config["encode"]["bam_id"],
+        ),
+        bedtools=expand(
+            config["counting"]["time"],
+            method="bedtools",
             encode_id=config["encode"]["bam_id"],
         ),
     threads: 1

@@ -27,6 +27,11 @@ requirements = [
     'tensorflow',
     'tensorflow-probability'
 ]
+extras_require = {
+    'onnx': ['onnxruntime>=1.16'],
+    'hic': ['hic-straw'],
+    'all': ['onnxruntime>=1.16', 'hic-straw']
+}
 
 setup_requirements = ['pytest-runner', ]
 
@@ -55,6 +60,7 @@ setup(
 
     install_requires=requirements,
     setup_requires=setup_requirements,
+    extras_require=extras_require,
 
     entry_points='''
         [console_scripts]
@@ -66,7 +72,6 @@ setup(
     ''',
     packages=find_packages(include=['epiout*']),
     include_package_data=True,
-
     test_suite='tests',
     tests_require=test_requirements,
 )

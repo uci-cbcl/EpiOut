@@ -25,7 +25,8 @@ class EpiOutDataset:
         self.alignments = self.read_alignments(alignments)
         self.njobs = njobs
 
-    def read_bed(self, bed, slack=200, subset_chrom=False):
+    @staticmethod
+    def read_bed(bed, slack=200, subset_chrom=False):
         '''
         Read bed file and overlapping merge peaks with slack of 
           by default 200bp, subset chromosomes of 
@@ -39,7 +40,7 @@ class EpiOutDataset:
         if subset_chrom:
             bed = bed[bed.Chromosome.isin(chroms)]
 
-        self.valid_bed(bed)
+        EpiOutDataset._valid_bed(bed)
         return bed
 
     def read_alignments(self, alignments):

@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import pyranges as pr
 from epiout.annotate import AnnotationConfig, EpiAnnot, GTFAnnot
-from conftest import config, epi_annot, bed, gtf, chrom_sizes
+from conftest import config, config_chipseq, epi_annot, bed, gtf, chrom_sizes
 
 
 @pytest.fixture
@@ -56,7 +56,7 @@ def test_EpiAnnot_annotate(epi_annot):
     df_annot, df_gtf = annot.annotate(bed)
 
 
-def test_EpiAnnot_annotate_hic(epi_annot):
+def test_EpiAnnot_annotate_hic(epi_annot, epi_annot_chipseq):
     gr = pr.PyRanges(
         chromosomes="chr22",
         starts=(40_000_000, 40_010_000, 40_110_000),
@@ -66,17 +66,38 @@ def test_EpiAnnot_annotate_hic(epi_annot):
     df = pd.concat(epi_annot.annotate_hic(gr))
 
     df_expected = pd.DataFrame({
-        'peak': ['chr22:40000000-40001000', 'chr22:40010000-40012000', 'chr22:40010000-40012000',
-                 'chr22:40110000-40115000', 'chr22:40110000-40115000'],
+        'peak': ['chr22:40000000-40001000', 'chr22:40010000-40012000',
+                 'chr22:40010000-40012000', 'chr22:40110000-40115000',
+                 'chr22:40110000-40115000'],
         'peak_other': ['chr22:40010000-40012000', 'chr22:40000000-40001000',
-                       'chr22:40110000-40115000', 'chr22:40000000-40001000', 'chr22:40010000-40012000'],
+                       'chr22:40110000-40115000', 'chr22:40000000-40001000',
+                       'chr22:40010000-40012000'],
         'distance': [10500, 10500, 101500, 112000, 101500],
         'count': [101, 51, 202, 51, 101],
         'hic_score': [2.0, 4.0, 2.0, 2.0, 2.0],
         'co_outlier': [False, False, False, False, False],
         'abc_score': [1.0, 0.3355263157894737, 0.6644736842105263,
-                      0.3355263157894737, 0.6644736842105263]}
-    )
+                      0.3355263157894737, 0.6644736842105263]
+    })
+    pd.testing.assert_frame_equal(df.reset_index(), df_expected,
+                                  check_dtype=False, check_exact=False)
+
+    df = pd.concat(epi_annot_chipseq.annotate_hic(gr))
+    df_expected = pd.DataFrame({
+        'peak': ['chr22:40000000-40001000', 'chr22:40000000-40001000',
+                 'chr22:40010000-40012000', 'chr22:40010000-40012000',
+                 'chr22:40110000-40115000', 'chr22:40110000-40115000'],
+        'peak_other': ['chr22:40010000-40012000', 'chr22:40110000-40115000',
+                       'chr22:40000000-40001000', 'chr22:40110000-40115000',
+                       'chr22:40000000-40001000', 'chr22:40010000-40012000'],
+        'distance': [10500, 112000, 10500, 101500, 112000, 101500],
+        'count': [101, 202, 51, 202, 51, 101],
+        'hic_score': [99.09405640982034, 9.290067788420647, 99.09405640982034,
+                      10.251109283774506, 9.290067788420647, 10.251109283774506],
+        'co_outlier': [False, False, False, False, False, False],
+        'abc_score': [0.8421052631578949, 0.15789473684210512, 0.7093525179856118,
+                      0.2906474820143882, 0.313946083634048, 0.686053916365952]
+    })
     pd.testing.assert_frame_equal(df.reset_index(), df_expected,
                                   check_dtype=False, check_exact=False)
 

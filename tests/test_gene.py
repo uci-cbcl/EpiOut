@@ -23,12 +23,17 @@ def test_gene(tmp_path, epi_annot):
     interaction = tmp_path / "interaction.csv"
     df_hic.to_csv(interaction)
 
-    gene_link = GeneLink(annotation, annotation_gtf, interaction)
+    gene_link = GeneLink(annotation_gtf, interaction, annotation)
 
     result = EpiOutResult.load(epiout_h5ad)
     features = gene_link.predict(result)
 
     assert list(features.columns) == [
-        'promoter_outlier', 'l2fc', '-log(pval)', 'Proximal-Enhancer', 'Distal-Enhancer', 'Score'
+        'tss_outlier', 'l2fc', '-log(pval)', 'proximal', 'distal', 'Score'
     ]
     assert list(features.index.names) == ['gene_id', 'sample']
+
+    df_promoter = gene_link.promoter_features(result)
+    assert list(df_promoter.columns) == [
+        'promoter_outlier', 'l2fc', '-log(pval)'
+    ]

@@ -3,7 +3,7 @@ import pyranges as pr
 import pandas as pd
 from click.testing import CliRunner
 from epiout.main import cli_epiannot, cli_epiannot_create, cli_epiannot_list, cli_epicount, cli_epiout
-from conftest import count_table, bed, config, chrom_sizes, epiout_h5ad, gtf
+from conftest import count_table, bed, config, chrom_sizes, epiout_h5ad, gtf, config_chipseq
 
 
 def test_cli_epicount(tmp_path):
@@ -31,7 +31,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'parquet'
@@ -51,7 +51,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'csv'
@@ -72,7 +72,7 @@ def test_cli_epicount(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli_epicount, [
         '--bed', bed,
-        '--metadata', csv,
+        '--alignments', csv,
         '--output_prefix', str(output_prefix),
         '--min_count', '500',
         '--file_format', 'csv'
@@ -148,6 +148,26 @@ def test_cli_epiannot(tmp_path):
     df_genes = pd.read_csv(f'{output_prefix}.genes.csv')
 
     assert set(df_genes.columns) == {
-        'gene_id', 'sample', 'promoter_outlier', 'l2fc', '-log(pval)',
-        'Proximal-Enhancer', 'Distal-Enhancer', 'Score'
+        'gene_id', 'sample', 'tss_outlier', 'l2fc', '-log(pval)',
+        'proximal', 'distal', 'Score'
+    }
+
+    result = runner.invoke(cli_epiannot, [
+        '--bed', bed,
+        '--config', config_chipseq,
+        '--gtf', gtf,
+        '--output_prefix', str(output_prefix),
+        '--chrom_sizes', chrom_sizes,
+        '--counts', epiout_h5ad
+    ])
+    assert result.exit_code == 0
+
+    df_annot = pd.read_csv(f'{output_prefix}.annotation.csv')
+    df_gtf = pd.read_csv(f'{output_prefix}.gtf.csv')
+    df_interact = pd.read_csv(f'{output_prefix}.interaction.csv')
+    df_genes = pd.read_csv(f'{output_prefix}.genes.csv')
+
+    assert set(df_genes.columns) == {
+        'gene_id', 'sample', 'tss_outlier', 'l2fc', '-log(pval)',
+        'proximal', 'distal', 'Score'
     }

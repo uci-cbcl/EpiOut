@@ -21,4 +21,4 @@ include: "outliers/Snakefile"
 
 rule all:
     input:
-        rules.all_outliers.input,
+        rules.counting_benchmark.output,
